@@ -1,4 +1,3 @@
-require('./settings');
 const fs = require('fs');
 const pino = require('pino');
 const path = require('path');
@@ -8,7 +7,7 @@ const { exec } = require('child_process');
 const { Boom } = require('@hapi/boom');
 const { default: WAConnection, useMultiFileAuthState, Browsers, DisconnectReason, makeInMemoryStore, makeCacheableSignalKeyStore, fetchLatestWaWebVersion, PHONENUMBER_MCC } = require('@whiskeysockets/baileys');
 
-const pairingCode = true; // PAKAI PAIRING CODE SELALU
+const pairingCode = true;
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
 const store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream: 'store' }) })
 const question = (text) => new Promise((resolve) => rl.question(text, resolve))
@@ -59,7 +58,7 @@ function getQuotedRaw(msg) {
 }
 
 async function startBot() {
-    const { state, saveCreds } = await useMultiFileAuthState('./session'); // SESUAI SESSION LU
+    const { state, saveCreds } = await useMultiFileAuthState('./session');
     const { version, isLatest } = await fetchLatestWaWebVersion();
     
     const getMessage = async (key) => {
@@ -75,7 +74,7 @@ async function startBot() {
     const sock = WAConnection({
         isLatest,
         logger: pino({ level: 'silent' }),
-        printQRInTerminal: false, // QR DIMATIKAN
+        printQRInTerminal: false,
         browser: Browsers.ubuntu('Chrome'),
         auth: {
             creds: state.creds,
@@ -139,7 +138,7 @@ async function startBot() {
         }
     });
 
-    // MESSAGE HANDLER - PAKE SYSTEM LU
+    // MESSAGE HANDLER
     sock.ev.on("messages.upsert", async ({ messages }) => {
         const msg = messages[0];
         if (!msg.message || !msg.key.remoteJid) return;
