@@ -49,6 +49,9 @@ function getQuotedRaw(msg) {
 }
 
 async function startBot() {
+    console.log('🚀 Starting bot...');
+    
+    // Input nomor manual
     const readline = require('readline');
     const rl = readline.createInterface({
         input: process.stdin,
@@ -62,14 +65,19 @@ async function startBot() {
         });
     });
 
+    console.log('📞 Using number:', phoneNumber);
+
     const { state, saveCreds } = await useMultiFileAuthState("./session");
     const { version } = await fetchLatestBaileysVersion();
+
+    console.log('🔧 Creating connection...');
 
     const sock = makeWASocket({
         version,
         auth: state,
         logger: P({ level: "silent" }),
-        browser: ["Ditzmd", "Chrome", "1.0"],
+        browser: ["Ditzmd", "Chrome", "1.0.0"],
+        printQRInTerminal: false,
         pairingOptions: {
             usePairingCode: true,
             phoneNumber: phoneNumber
@@ -80,6 +88,7 @@ async function startBot() {
 
     sock.ev.on("connection.update", (update) => {
         const { connection, qr, pairingCode } = update;
+        console.log('🔄 Connection update:', connection);
         
         if (pairingCode) {
             console.log('══════════════════════════════════════');
@@ -92,17 +101,13 @@ async function startBot() {
             console.log('══════════════════════════════════════');
         }
         
-        if (connection === "connecting") {
-            console.log("🔄 Connecting to WhatsApp...");
-        }
-        
         if (connection === "open") {
-            console.log("✅ DixzzXD berhasil konek ke WhatsApp!");
+            console.log("✅ Bot connected!");
         }
         
         if (connection === "close") {
-            console.log("❌ Koneksi terputus, mencoba reconnect...");
-            startBot();
+            console.log("❌ Connection closed, restarting...");
+            setTimeout(() => startBot(), 5000);
         }
     });
 
@@ -137,12 +142,13 @@ async function startBot() {
                 });
             } catch (e) {
                 console.error(`❌ Error di plugin ${command}:`, e);
-                await sock.sendMessage(from, { text: "⚠️ Terjadi error di plugin" });
+                await sock.sendMessage(from, { text: "⚠️ Error di plugin" });
             }
         }
     });
 }
 
+// Jalankan bot
 loadPlugins();
 watchPlugins();
-startBot();
+startBot().catch(console.error);
