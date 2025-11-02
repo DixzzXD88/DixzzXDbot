@@ -1,96 +1,99 @@
-# 💫 DixzzXD Bot
-
-> Bot WhatsApp berbasis **Baileys** yang ringan, simple, dan bisa dikembangkan dengan sistem **plugin otomatis reload**.  
-> Sekarang juga bisa dihubungkan ke **Telegram**: [@yajujmanuk](https://t.me/yajujmanuk)
-
----
-
-## ⚙️ Fitur Utama
-- 🔁 Auto reload plugin (gak perlu restart bot tiap ubah file)
-- 💬 Prefix command: `.` (contoh: `.menu`, `.p`)
-- 🧩 Sistem plugin modular (tinggal tambah file baru di folder `plugin`)
-- 🧠 Struktur sederhana, cocok buat recode atau belajar
-- ⚡ Fast & stable (pakai Baileys v6)
+# 🤖 DixzzXD
+> WhatsApp Bot simple & powerful buatan **DixzzXD88** 💥  
+> Dibangun dengan Node.js + plugin modular biar gampang dikembangin!
 
 ---
 
-## 🚀 Cara Install
+## 🚀 Fitur Utama
+- 💬 Auto Reply & Command Custom  
+- 📸 Downloader (YouTube, TikTok, Instagram, dll)  
+- 🧠 AI Chat (Opsional, bisa dihubungkan dengan API AI)  
+- ⚙️ Menu otomatis + sistem plugin  
+- 🔥 Support multi-device (Baileys MD)  
+
+---
+
+## 📦 Instalasi di Termux / Linux
+
+### 1️⃣ Install dependensi dasar
 ```bash
-# Clone repository
-git clone https://github.com/DixzzXD88/DixzzXD.git
+pkg update && pkg upgrade
+pkg install git nodejs -y
+npm install -g yarn
+
+2️⃣ Clone repo ini
+
+git clone https://github.com/DixzzXD88/DixzzXD
 cd DixzzXD
 
-# Install dependency
+3️⃣ Install module yang dibutuhkan
+
 yarn install
-# atau kalau pakai npm
-npm install
 
+4️⃣ Jalankan bot
 
----
-
-▶️ Cara Menjalankan Bot
-
-# Jalankan bot
-yarn start
-# atau
 npm start
 
-Saat pertama kali dijalankan, bot akan menampilkan QR Code untuk login WhatsApp.
-Scan QR itu pakai WhatsApp kamu (fitur WhatsApp Web).
+> Saat pertama kali jalan, bot akan menampilkan QR Code.
+Scan QR-nya pakai WhatsApp yang mau dijadikan bot.
 
-📸 Contoh tampilan di terminal:
 
-🔑 Scan QR ini di WhatsApp Web:
-█████████████████████████████
-████ ▄▄▄▄▄ ██▀▄▀█ ▄▄▄▄▄ ████
-████ █   █ █▀ ▀▄█ █   █ ████
-████ █▄▄▄█ █ ▀ ▀█ █▄▄▄█ ████
-████▄▄▄▄▄▄▄█▄█▄█▄▄▄▄▄▄▄█████
-✅ DixzzXD berhasil konek ke WhatsApp!
 
 
 ---
 
-🧩 Contoh Plugin .p
-
-📄 plugin/p.js
-
-module.exports = async (sock, msg, args) => {
-  const replies = [
-    "Oi 👊",
-    "Yo bro 😎",
-    "Ada apa nih?",
-    "Siap gas 💪",
-    "Hadir boss 🔥",
-    "Weh, dipanggil nih 😏"
-  ];
-  const randomReply = replies[Math.floor(Math.random() * replies.length)];
-  await sock.sendMessage(msg.from, { text: randomReply });
-};
-
-💬 Cara pakai:
-Ketik di chat WhatsApp:
-
-.p
-
-
----
-
-🧰 Struktur Folder
+🧩 Struktur Folder
 
 DixzzXD/
+├── plugins/         # Folder berisi plugin bot (command-command)
+├── node_modules/    # Dependency otomatis dari Yarn
 ├── index.js         # File utama bot
-├── package.json     # Info dan dependency
-├── plugin/          # Folder semua command/plugin
-│   ├── menu.js
-│   └── p.js
-└── session/         # Data login WhatsApp
+├── package.json     # Info project dan script
+└── README.md        # Dokumentasi ini
 
 
 ---
 
-👑 Owner & Kontak
+🧠 Contoh Command
+
+Command	Fungsi
+
+.menu	Menampilkan daftar command
+.sticker	Mengubah gambar jadi stiker
+.ytmp4 <url>	Download video dari YouTube
+.ai <teks>	Tanya AI (jika diaktifkan)
+
+
+
+---
+
+🧑‍💻 Developer
+
+DixzzXD
+
+GitHub: @DixzzXD88
 
 Telegram: @yajujmanuk
 
-GitHub: DixzzXD88
+
+
+---
+
+💬 Catatan
+
+> Kalau ada bug, request fitur, atau ide keren, buka Issues ya bro 🙌
+
+
+
+
+---
+
+🪪 Lisensi
+
+Lisensi: MIT License
+Boleh lu ubah, pakai ulang, atau modif — asal tetap kasih kredit kecil ke DixzzXD88 😎
+
+
+---
+
+💻 Made with ❤️ by DixzzXD
