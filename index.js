@@ -30,8 +30,16 @@ async function startBot() {
           rl.close()
           process.exit(1)
         }
-        const code = await sock.requestPairingCode(number)
-        console.log(`\n🔐 Pairing Code kamu: ${code}\n`)
+        sock.ev.on('connection.update', async (update) => {
+  const { connection } = update
+  if (connection === 'open') {
+    console.log('✅ Tersambung ke server WhatsApp, siap request code!')
+    const code = await sock.requestPairingCode(number)
+    console.log(`\n🔑 Pairing Code: ${code}\n`)
+  } else if (connection === 'close') {
+    console.log('❌ Koneksi terputus, coba lagi nanti...')
+  }
+})
         rl.close()
       })
     } else {
