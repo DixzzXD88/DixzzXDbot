@@ -50,6 +50,14 @@ function getQuotedRaw(msg) {
 }
 
 async function startBot() {
+    // 🔥 Tampilkan ASCII art dulu
+    try {
+        const asciiArt = fs.readFileSync(path.join(__dirname, "ascii.txt"), "utf8");
+        console.log(asciiArt);
+    } catch {
+        console.log("⚠️ Gagal menampilkan ASCII (file ascii.txt tidak ditemukan)");
+    }
+
     const { state, saveCreds } = await useMultiFileAuthState("./session");
     const { version } = await fetchLatestBaileysVersion();
 
@@ -57,7 +65,7 @@ async function startBot() {
         version,
         auth: state,
         logger: P({ level: "silent" }),
-        browser: ["Ditzmd", "Chrome", "1.0"]
+        browser: ["DixzzXD", "Chrome", "1.0"]
     });
 
     sock.ev.on("creds.update", saveCreds);
