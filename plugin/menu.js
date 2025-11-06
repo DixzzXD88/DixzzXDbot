@@ -45,6 +45,7 @@ Semoga dengan adanya bot ini, kamu bisa lebih mudah mencari informasi, hiburan, 
 │ツ .makermenu
 │ツ .randommenu
 │ツ .primbonmenu
+│ツ .downloadermenu
 ╚─────────────☉
 `
 
