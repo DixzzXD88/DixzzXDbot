@@ -33,10 +33,10 @@ module.exports = async (sock, msg, args, { isOwner }) => {
 ㄔ Tanggal: ${tanggal}
 ㄔ Waktu: ${waktu}
 
-ㄔ Nama Bot: Ditzz Simple Bot
+ㄔ Nama Bot: DixzzXD
 ㄔ Language : JavaScript
 ㄔ Type : Plugin
-ㄔ Developer : Ditzz
+ㄔ Developer : Dixzz
 
 ╔──『 Maker 』
 │ツ .qc
@@ -44,13 +44,14 @@ module.exports = async (sock, msg, args, { isOwner }) => {
 │ツ .qctweet
 │ツ .qcfb
 │ツ .brat
+│ツ .bratv
 ╚─────────────☉
 `
 
     await sock.sendMessage(
       msg.from,
       {
-        image: { url: "https://files.catbox.moe/tr4pvt.png" },
+        image: { url: "https://files.catbox.moe/1fsgrj.jpg" },
         caption: teks
       },
       { quoted: msg }
