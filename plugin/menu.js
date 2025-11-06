@@ -27,7 +27,7 @@ module.exports = async function (sock, msg, args) {
     const waktu = moment().tz("Asia/Jakarta").format("HH:mm") + " " + emojiWaktu
 
     const caption = `
-Halo kak, selamat datang di *Ditzz Simple Bot*  
+Halo kak, selamat datang di *DixzzXD*  
 
 Bot ini dibuat untuk membantu aktivitas kamu dengan fitur-fitur sederhana namun bermanfaat.  
 Semoga dengan adanya bot ini, kamu bisa lebih mudah mencari informasi, hiburan, maupun tools praktis yang tersedia di dalamnya.  
@@ -53,7 +53,7 @@ Semoga dengan adanya bot ini, kamu bisa lebih mudah mencari informasi, hiburan, 
       {
         image: buffer,
         caption: caption,
-        footer: "Ditzz Simple Bot © 2025"
+        footer: "DixzzXD © 2025"
       },
       { quoted: msg }
     )
