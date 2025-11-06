@@ -36,7 +36,7 @@ module.exports = async (sock, msg, args, { isOwner }) => {
 ㄔ Nama Bot: DixzzXD
 ㄔ Language : JavaScript
 ㄔ Type : Plugin
-ㄔ Developer : Dixzz gantenk
+ㄔ Developer : Dixzz
 
 ╔──『 AI 』
 │ツ .gpt
