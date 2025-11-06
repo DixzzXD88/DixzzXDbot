@@ -24,7 +24,7 @@ WELCOME
 
 ```bash
 $ pkg update && pkg upgrade
-$ pkg install git nodejs -y
+$ pkg install git nodejs imagemagick ffmpeg -y
 $ npm install -g yarn
 $ git clone https://github.com/DixzzXD88/DixzzXD
 $ cd DixzzXD
