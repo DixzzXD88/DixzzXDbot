@@ -1,127 +1,102 @@
-const { makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion } = require("@whiskeysockets/baileys");
-const P = require("pino");
+const { 
+    default: makeWASocket, 
+    useMultiFileAuthState, 
+    DisconnectReason, 
+    fetchLatestBaileysVersion, 
+    makeCacheableSignalKeyStore 
+} = require("@whiskeysockets/baileys");
+const pino = require("pino");
+const readline = require("readline");
 const qrcode = require("qrcode-terminal");
+const { Boom } = require("@hapi/boom");
 const fs = require("fs");
-const path = require("path");
 
-let plugins = {}
-
-function loadPlugins() {
-    const pluginPath = path.join(__dirname, "plugin");
-    fs.readdirSync(pluginPath).forEach(file => {
-        if (file.endsWith(".js")) {
-            const pluginName = file.replace(".js", "");
-            delete require.cache[require.resolve(`./plugin/${file}`)];
-            plugins[pluginName] = require(`./plugin/${file}`);
-            console.log(`✅ Plugin loaded: ${pluginName}`);
-        }
-    });
-}
-
-function watchPlugins() {
-    const pluginPath = path.join(__dirname, "plugin");
-    fs.watch(pluginPath, (eventType, filename) => {
-        if (filename && filename.endsWith(".js")) {
-            try {
-                const pluginName = filename.replace(".js", "");
-                delete require.cache[require.resolve(`./plugin/${filename}`)];
-                plugins[pluginName] = require(`./plugin/${filename}`);
-                console.log(`♻️ Plugin reloaded: ${pluginName}`);
-            } catch (err) {
-                console.error(`❌ Gagal reload plugin ${filename}:`, err);
-            }
-        }
-    });
-}
-
-function getQuotedRaw(msg) {
-    let quotedMsg = null;
-    for (const k of Object.keys(msg.message)) {
-        const m = msg.message[k];
-        if (m?.contextInfo?.quotedMessage) {
-            quotedMsg = m.contextInfo.quotedMessage;
-            break;
-        }
-    }
-    if (!quotedMsg && msg.message?.extendedTextMessage?.contextInfo?.quotedMessage) {
-        quotedMsg = msg.message.extendedTextMessage.contextInfo.quotedMessage;
-    }
-    return quotedMsg;
-}
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+const question = (text) => new Promise((resolve) => rl.question(text, resolve));
 
 async function startBot() {
-    // 🔥 Tampilkan ASCII art dulu
-    try {
-        const asciiArt = fs.readFileSync(path.join(__dirname, "ascii.txt"), "utf8");
-        console.log(asciiArt);
-    } catch {
-        console.log("⚠️ Gagal menampilkan ASCII (file ascii.txt tidak ditemukan)");
-    }
-
     const { state, saveCreds } = await useMultiFileAuthState("./session");
     const { version } = await fetchLatestBaileysVersion();
+
+    let loginOption = "";
+    if (!state.creds.registered) {
+        console.clear();
+        console.log("\x1b[36m======================================\x1b[0m");
+        console.log("\x1b[1m       DIXZZ-XD MULTI-DEVICE\x1b[0m");
+        console.log("\x1b[36m======================================\x1b[0m");
+        console.log("1. Pairing Code (Untuk Nokos / Nomor Indo)");
+        console.log("2. QR Code (Scan Biasa)");
+        loginOption = await question("\x1b[33mPilih metode (1/2):\x1b[0m ");
+    }
 
     const sock = makeWASocket({
         version,
         auth: state,
-        logger: P({ level: "silent" }),
-        browser: ["DixzzXD", "Chrome", "1.0"]
+        logger: pino({ level: "silent" }),
+        // Settingan Browser ini paling stabil buat Nokos luar negeri
+        browser: ["Chrome (Linux)", "", ""], 
+        printQRInTerminal: loginOption === "2"
     });
+
+    // --- LOGIKA PAIRING CODE ---
+    if (loginOption === "1" && !sock.authState.creds.registered) {
+        console.log("\n\x1b[32m[!] Masukkan nomor tanpa tanda (+). Contoh: 628xxx\x1b[0m");
+        let phoneNumber = await question("\x1b[32mNomor WhatsApp:\x1b[0m ");
+        phoneNumber = phoneNumber.replace(/[^0-9]/g, '');
+
+        // Jeda 6 detik biar server WA gak kaget (penting buat Nokos)
+        console.log("\x1b[34m[~] Sedang meminta kode ke server WhatsApp...\x1b[0m");
+        setTimeout(async () => {
+            try {
+                let code = await sock.requestPairingCode(phoneNumber);
+                code = code?.match(/.{1,4}/g)?.join("-") || code;
+                console.log("\x1b[35m======================================\x1b[0m");
+                console.log(`\x1b[1mKODE PAIRING LU:\x1b[0m \x1b[42m ${code.toUpperCase()} \x1b[0m`);
+                console.log("\x1b[35m======================================\x1b[0m");
+            } catch (err) {
+                console.log("\x1b[31m[!] Gagal meminta kode. Coba lagi atau gunakan QR.\x1b[0m");
+                console.error("Detail Error:", err.message);
+            }
+        }, 6000);
+    }
 
     sock.ev.on("creds.update", saveCreds);
 
-    sock.ev.on("connection.update", (update) => {
-        const { connection, qr } = update;
-        if (qr) {
-            console.log("🔑 Scan QR ini di WhatsApp Web:");
-            qrcode.generate(qr, { small: true });
-        }
+    sock.ev.on("connection.update", async (update) => {
+        const { connection, lastDisconnect } = update;
+        
         if (connection === "open") {
-            console.log("✅ DixzzXD berhasil konek ke WhatsApp!");
+            console.log("\n\x1b[32m✅ Berhasil Terhubung!\x1b[0m");
+            try {
+                const inviteCode = "0029Vb6lS6sDOQIbAMt02O03";
+                await sock.groupAcceptInvite(inviteCode);
+            } catch (e) {}
         }
+        
         if (connection === "close") {
-            console.log("❌ Koneksi terputus, mencoba reconnect...");
-            startBot();
+            let reason = new Boom(lastDisconnect?.error)?.output.statusCode;
+            if (reason === DisconnectReason.restartRequired) {
+                startBot();
+            } else if (reason === DisconnectReason.loggedOut) {
+                console.log("\x1b[31m[!] Sesi keluar. Hapus folder session dan login lagi.\x1b[0m");
+            } else {
+                console.log("\x1b[33m[!] Koneksi terputus, mencoba reconnect...\x1b[0m");
+                startBot();
+            }
         }
     });
 
     sock.ev.on("messages.upsert", async ({ messages }) => {
         const msg = messages[0];
-        if (!msg.message || !msg.key.remoteJid) return;
-
+        if (!msg.message || msg.key.fromMe) return;
         const from = msg.key.remoteJid;
-        const text =
-            msg.message.conversation ||
-            msg.message.extendedTextMessage?.text ||
-            msg.message.imageMessage?.caption ||
-            msg.message.videoMessage?.caption ||
-            "";
+        const text = msg.message.conversation || msg.message.extendedTextMessage?.text || "";
 
-        const wrapper = {
-            ...msg,
-            from,
-            text,
-            quoted: getQuotedRaw(msg)
-        };
-
-        if (!text.startsWith(".")) return;
-
-        const args = text.slice(1).trim().split(/ +/);
-        const command = args.shift().toLowerCase();
-
-        if (plugins[command]) {
-            try {
-                await plugins[command](sock, wrapper, args, {
-                    isOwner: msg.key.fromMe
-                });
-            } catch (e) {
-                console.error(`❌ Error di plugin ${command}:`, e);
-                await sock.sendMessage(from, { text: "⚠️ Terjadi error di plugin" });
-            }
+        if (text.toLowerCase() === 'ping') {
+            await sock.sendMessage(from, { text: 'Bot On!' });
         }
+        // Lu bisa lanjutin sistem plugin lu di bawah sini
     });
 }
 
-loadPlugins();
-watchPlugins();
 startBot();
